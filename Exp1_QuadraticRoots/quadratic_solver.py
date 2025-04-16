@@ -1,56 +1,80 @@
 import numpy as np
 
-import numpy as np
-
 def standard_formula(a, b, c):
-    """使用标准公式求解二次方程 ax^2 + bx + c = 0"""
-    discriminant = b**2 - 4*a*c
+    """使用标准公式求解二次方程 ax^2 + bx + c = 0
+    
+    参数:
+        a (float): 二次项系数
+        b (float): 一次项系数
+        c (float): 常数项
+    
+    返回:
+        tuple: 方程的两个根 (x1, x2)
+    """
+    discriminant = b * b - 4 * a * c
     if discriminant < 0:
-        return None
-    sqrt_disc = np.sqrt(discriminant)
-    x1 = (-b + sqrt_disc) / (2*a)
-    x2 = (-b - sqrt_disc) / (2*a)
-    return (x1, x2)
+        return None  # 无实根
+    
+    sqrt_discriminant = np.sqrt(discriminant)
+    x1 = (-b + sqrt_discriminant) / (2 * a)
+    x2 = (-b - sqrt_discriminant) / (2 * a)
+    
+    return x1, x2
 
 def alternative_formula(a, b, c):
-    """使用替代公式求解二次方程 ax^2 + bx + c = 0"""
-    discriminant = b**2 - 4*a*c
+    """使用替代公式求解二次方程 ax^2 + bx + c = 0
+    该方法通过将标准公式的分子和分母都乘以 -b∓√(b^2-4ac) 得到
+    
+    参数:
+        a (float): 二次项系数
+        b (float): 一次项系数
+        c (float): 常数项
+    
+    返回:
+        tuple: 方程的两个根 (x1, x2)
+    """
+    discriminant = b * b - 4 * a * c
     if discriminant < 0:
-        return None
-    sqrt_disc = np.sqrt(discriminant)
+        return None  # 无实根
     
-    # 根据b的符号选择计算方式以避免抵消
-    if b >= 0:
-        x1 = (2*c) / (-b - sqrt_disc)
-        x2 = (-b - sqrt_disc) / (2*a)
-    else:
-        x1 = (-b + sqrt_disc) / (2*a)
-        x2 = (2*c) / (-b + sqrt_disc)
+    sqrt_discriminant = np.sqrt(discriminant)
+    x1 = (2 * c) / (-b - sqrt_discriminant)
+    x2 = (2 * c) / (-b + sqrt_discriminant)
     
-    return (x1, x2)
+    return x1, x2
 
 def stable_formula(a, b, c):
-    """稳定的二次方程求根程序"""
-    discriminant = b**2 - 4*a*c
+    """稳定的二次方程求根程序，能够处理各种特殊情况和数值稳定性问题
+    
+    参数:
+        a (float): 二次项系数
+        b (float): 一次项系数
+        c (float): 常数项
+    
+    返回:
+        tuple: 方程的两个根 (x1, x2)
+    """
+    # 处理特殊情况：a = 0
+    if abs(a) < 1e-10:
+        if abs(b) < 1e-10:  # a ≈ 0 且 b ≈ 0
+            return None if abs(c) > 1e-10 else (0, 0)  # 无解或无穷多解
+        return (-c/b, -c/b)  # 一次方程的解
+    
+    discriminant = b * b - 4 * a * c
     if discriminant < 0:
-        return None
+        return None  # 无实根
     
-    sqrt_disc = np.sqrt(discriminant)
-    
-    # 选择计算方式以避免抵消
+    # 使用数值稳定的求根公式
+    sqrt_discriminant = np.sqrt(discriminant)
     if b >= 0:
-        x1 = (2*c) / (-b - sqrt_disc)
-        x2 = (-b - sqrt_disc) / (2*a)
+        x1 = (-b - sqrt_discriminant) / (2 * a)
+        x2 = (2 * c) / (-b - sqrt_discriminant)
     else:
-        x1 = (-b + sqrt_disc) / (2*a)
-        x2 = (2*c) / (-b + sqrt_disc)
+        x1 = (-b + sqrt_discriminant) / (2 * a)
+        x2 = (2 * c) / (-b + sqrt_discriminant)
     
-    # 确保根的顺序与测试期望一致
-    if abs(x1) > abs(x2):
-        x1, x2 = x2, x1
-    
-    return (x1, x2)
-    
+    return x1, x2
+
 def main():
     test_cases = [
         (1, 2, 1),             # 简单情况
