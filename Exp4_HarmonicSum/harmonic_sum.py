@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from numba import jit  # Optional for performance optimization
+import time
 
 def sum_up(N):
     """从小到大计算调和级数和"""
@@ -40,7 +40,7 @@ def plot_differences():
     plt.title('Effect of Summation Order on Harmonic Series')
     plt.grid(True, which="both", ls="-")
     
-    # Add reference line showing O(N) error growth
+    # 添加理论参考线
     theoretical = N_values * np.finfo(float).eps
     plt.loglog(N_values, theoretical, '--', label='Theoretical O(Nε)')
     
@@ -62,18 +62,21 @@ def print_results():
 
 def time_comparison():
     """比较两种方法的计算时间"""
-    import time
     N = 10**7
     
-    # Time sum_up
-    start = time.time()
-    sum_up(N)
-    up_time = time.time() - start
+    # 预热（避免首次运行的额外开销影响计时）
+    sum_up(100)
+    sum_down(100)
     
-    # Time sum_down
-    start = time.time()
+    # 计时sum_up
+    start = time.perf_counter()
+    sum_up(N)
+    up_time = time.perf_counter() - start
+    
+    # 计时sum_down
+    start = time.perf_counter()
     sum_down(N)
-    down_time = time.time() - start
+    down_time = time.perf_counter() - start
     
     print("\nTime Comparison for N=10^7:")
     print(f"Sum Up: {up_time:.4f} seconds")
@@ -87,7 +90,7 @@ def main():
     # 绘制误差图
     plot_differences()
     
-    # 时间比较 (可选)
+    # 时间比较
     time_comparison()
 
 if __name__ == "__main__":
