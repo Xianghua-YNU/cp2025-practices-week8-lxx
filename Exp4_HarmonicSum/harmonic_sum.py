@@ -1,61 +1,83 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from numba import jit  # Optional for performance optimization
 
 def sum_up(N):
-    """从小到大计算调和级数和
-    
-    参数:
-        N (int): 求和项数
-        
-    返回:
-        float: 调和级数和
-    """
-    # 学生在此实现从小到大求和
-    # 提示: 使用循环从1加到N，每次加上1/n
-    pass
+    """从小到大计算调和级数和"""
+    total = 0.0
+    for n in range(1, N+1):
+        total += 1.0 / n
+    return total
 
 def sum_down(N):
-    """从大到小计算调和级数和
-    
-    参数:
-        N (int): 求和项数
-        
-    返回:
-        float: 调和级数和
-    """
-    # 学生在此实现从大到小求和
-    # 提示: 使用循环从N减到1，每次加上1/n
-    pass
+    """从大到小计算调和级数和"""
+    total = 0.0
+    for n in range(N, 0, -1):
+        total += 1.0 / n
+    return total
 
 def calculate_relative_difference(N):
-    """计算两种方法的相对差异
-    
-    参数:
-        N (int): 求和项数
-        
-    返回:
-        float: 相对差异值
-    """
-    # 学生在此实现相对差异计算
-    # 提示: 使用公式 |S_up - S_down| / ((S_up + S_down)/2)
-    pass
+    """计算两种方法的相对差异"""
+    s_up = sum_up(N)
+    s_down = sum_down(N)
+    if s_up + s_down == 0:  # Shouldn't happen for N >= 1
+        return 0.0
+    return abs(s_up - s_down) / ((s_up + s_down)/2)
 
 def plot_differences():
     """绘制相对差异随N的变化"""
-    # 学生在此实现绘图功能
-    # 提示:
-    # 1. 使用np.logspace生成N值
-    # 2. 计算每个N对应的相对差异
-    # 3. 使用plt.loglog绘制双对数坐标图
-    pass
+    N_values = np.logspace(1, 7, 50, dtype=int)  # 10^1 to 10^7
+    differences = []
+    
+    for N in N_values:
+        diff = calculate_relative_difference(N)
+        differences.append(diff)
+    
+    plt.figure(figsize=(10, 6))
+    plt.loglog(N_values, differences, 'o-', label='Relative Difference')
+    plt.xlabel('N (log scale)')
+    plt.ylabel('Relative Difference (log scale)')
+    plt.title('Effect of Summation Order on Harmonic Series')
+    plt.grid(True, which="both", ls="-")
+    
+    # Add reference line showing O(N) error growth
+    theoretical = N_values * np.finfo(float).eps
+    plt.loglog(N_values, theoretical, '--', label='Theoretical O(Nε)')
+    
+    plt.legend()
+    plt.show()
 
 def print_results():
     """打印典型N值的计算结果"""
-    # 学生在此实现结果打印
-    # 提示:
-    # 1. 选择几个典型N值(如10,100,1000,10000)
-    # 2. 计算并格式化输出两种方法的和及相对差异
-    pass
+    N_values = [10, 100, 1000, 10000, 100000, 1000000]
+    print("Harmonic Series Summation Comparison")
+    print("-----------------------------------")
+    print(f"{'N':<10} {'Sum Up':<15} {'Sum Down':<15} {'Relative Diff':<15}")
+    
+    for N in N_values:
+        s_up = sum_up(N)
+        s_down = sum_down(N)
+        diff = calculate_relative_difference(N)
+        print(f"{N:<10} {s_up:<15.10f} {s_down:<15.10f} {diff:<15.2e}")
+
+def time_comparison():
+    """比较两种方法的计算时间"""
+    import time
+    N = 10**7
+    
+    # Time sum_up
+    start = time.time()
+    sum_up(N)
+    up_time = time.time() - start
+    
+    # Time sum_down
+    start = time.time()
+    sum_down(N)
+    down_time = time.time() - start
+    
+    print("\nTime Comparison for N=10^7:")
+    print(f"Sum Up: {up_time:.4f} seconds")
+    print(f"Sum Down: {down_time:.4f} seconds")
 
 def main():
     """主函数"""
@@ -64,6 +86,9 @@ def main():
     
     # 绘制误差图
     plot_differences()
+    
+    # 时间比较 (可选)
+    time_comparison()
 
 if __name__ == "__main__":
     main()
